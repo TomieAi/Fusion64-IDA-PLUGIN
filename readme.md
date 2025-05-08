@@ -35,7 +35,7 @@ You can build this plugin using **two methods**:
 
 ### 🧰 2. Manual Build (Local)
 
-1. Ensure **Visual Studio 2022** is installed with the **C++ desktop development** workload.
+1. Ensure **Visual Studio 2022 Preview** is installed with the **C++ desktop development** workload.
 2. Run `build.bat` (or open `Fusion64.sln` and build it manually).
 3. Output `.dll` will be in `x64/Release/`.
 
