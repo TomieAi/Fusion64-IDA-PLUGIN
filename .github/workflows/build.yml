@@ -1,0 +1,59 @@
+# .github/workflows/build.yml
+
+name: Build Fusion64 C++
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. v0.1.0)'
+        required: true
+        default: 'v9.1.0'
+      message:
+        description: 'Tag message'
+        required: true
+        default: 'Fusion Plugin for IDA Pro 9.1'
+
+jobs:
+  build-windows:
+    name: Build on Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build solution with MSBuild
+        run: |
+          msbuild Fusion64.sln /t:Rebuild /p:Configuration=Release /p:Platform=x64
+
+      - name: Archive build artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fusion64-IDA-9.1-Plugin
+          path: |
+            x64/Release/*.dll
+
+      - name: Create Tag
+        uses: piszmog/create-tag@v1
+        with:
+          version: ${{ github.event.inputs.version }}
+          message: ${{ github.event.inputs.message }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Fusion Plugin ${{ github.event.inputs.version }}
+          tag_name: ${{ github.event.inputs.version }}
+          prerelease: true
+          files: |
+            x64/Release/*.dll
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
